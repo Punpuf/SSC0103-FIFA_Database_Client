@@ -82,7 +82,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.punpuf.ssc0103fifa_database_client/com.punpuf.ssc0103fifa_database_client.HelloApplication
+                                com.punpuf.ssc0103fifa_database_client/com.punpuf.ssc0103fifa_database_client.ui.FifaApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

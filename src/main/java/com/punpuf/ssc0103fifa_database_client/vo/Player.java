@@ -1,4 +1,4 @@
-package com.punpuf.ssc0103fifa_database_client;
+package com.punpuf.ssc0103fifa_database_client.vo;
 
 /**
  * Esta classe representa as características de um jogador FIFA.
@@ -8,14 +8,14 @@ package com.punpuf.ssc0103fifa_database_client;
 @SuppressWarnings("unused")
 public class Player {
     int id;
-    int age;
+    int idade;
     String nomeJogador;
     String nacionalidade;
     String nomeClube;
-    
-    public Player(int id, int age, String nomeJogador, String nacionalidade, String nomeClube) {
+
+    public Player(int id, int idade, String nomeJogador, String nacionalidade, String nomeClube) {
         this.id = id;
-        this.age = age;
+        this.idade = idade;
         this.nomeJogador = nomeJogador;
         this.nacionalidade = nacionalidade;
         this.nomeClube = nomeClube;
@@ -29,12 +29,12 @@ public class Player {
         this.id = id;
     }
 
-    public int getAge() {
-        return age;
+    public int getIdade() {
+        return idade;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setIdade(int idade) {
+        this.idade = idade;
     }
 
     public String getNomeJogador() {
@@ -65,7 +65,7 @@ public class Player {
     public String toString() {
         return "Player{" +
                 "ID=" + id +
-                ", Age=" + age +
+                ", Age=" + idade +
                 ", Name='" + nomeJogador + '\'' +
                 ", Nationality='" + nacionalidade + '\'' +
                 ", Club='" + nomeClube + '\'' +

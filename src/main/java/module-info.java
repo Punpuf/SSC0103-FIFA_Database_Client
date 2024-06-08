@@ -10,4 +10,10 @@ module com.punpuf.ssc0103fifa_database_client {
 
     opens com.punpuf.ssc0103fifa_database_client to javafx.fxml;
     exports com.punpuf.ssc0103fifa_database_client;
+    exports com.punpuf.ssc0103fifa_database_client.ui;
+    opens com.punpuf.ssc0103fifa_database_client.ui to javafx.fxml;
+    exports com.punpuf.ssc0103fifa_database_client.utils;
+    opens com.punpuf.ssc0103fifa_database_client.utils to javafx.fxml;
+    exports com.punpuf.ssc0103fifa_database_client.vo;
+    opens com.punpuf.ssc0103fifa_database_client.vo to javafx.fxml;
 }
