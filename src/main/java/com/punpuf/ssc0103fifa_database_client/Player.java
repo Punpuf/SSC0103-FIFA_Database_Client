@@ -5,6 +5,7 @@ package com.punpuf.ssc0103fifa_database_client;
  * @author Jean Patrick Ngandu Mamani
  * @author Marcus da Silva Carr
  */
+@SuppressWarnings("unused")
 public class Player {
     int id;
     int age;
@@ -58,6 +59,17 @@ public class Player {
 
     public void setNomeClube(String nomeClube) {
         this.nomeClube = nomeClube;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "ID=" + id +
+                ", Age=" + age +
+                ", Name='" + nomeJogador + '\'' +
+                ", Nationality='" + nacionalidade + '\'' +
+                ", Club='" + nomeClube + '\'' +
+                '}';
     }
 }
 
