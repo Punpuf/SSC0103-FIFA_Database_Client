@@ -1,24 +1,24 @@
 package com.punpuf.ssc0103fifa_database_client.vo;
 
 /**
- * Esta classe representa as características de um jogador FIFA.
+ * Class that represents the characteristics of a FIFA player
  * @author Jean Patrick Ngandu Mamani
  * @author Marcus da Silva Carr
  */
 @SuppressWarnings("unused")
 public class Player {
     int id;
-    int idade;
-    String nomeJogador;
-    String nacionalidade;
-    String nomeClube;
+    int age;
+    String name;
+    String country;
+    String club;
 
-    public Player(int id, int idade, String nomeJogador, String nacionalidade, String nomeClube) {
+    public Player(int id, int age, String name, String country, String club) {
         this.id = id;
-        this.idade = idade;
-        this.nomeJogador = nomeJogador;
-        this.nacionalidade = nacionalidade;
-        this.nomeClube = nomeClube;
+        this.age = age;
+        this.name = name;
+        this.country = country;
+        this.club = club;
     }
 
     public int getId() {
@@ -29,46 +29,46 @@ public class Player {
         this.id = id;
     }
 
-    public int getIdade() {
-        return idade;
+    public int getAge() {
+        return age;
     }
 
-    public void setIdade(int idade) {
-        this.idade = idade;
+    public void setAge(int age) {
+        this.age = age;
     }
 
-    public String getNomeJogador() {
-        return nomeJogador;
+    public String getName() {
+        return name;
     }
 
-    public void setNomeJogador(String nomeJogador) {
-        this.nomeJogador = nomeJogador;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getNacionalidade() {
-        return nacionalidade;
+    public String getCountry() {
+        return country;
     }
 
-    public void setNacionalidade(String nacionalidade) {
-        this.nacionalidade = nacionalidade;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
-    public String getNomeClube() {
-        return nomeClube;
+    public String getClub() {
+        return club;
     }
 
-    public void setNomeClube(String nomeClube) {
-        this.nomeClube = nomeClube;
+    public void setClub(String club) {
+        this.club = club;
     }
 
     @Override
     public String toString() {
         return "Player{" +
                 "ID=" + id +
-                ", Age=" + idade +
-                ", Name='" + nomeJogador + '\'' +
-                ", Nationality='" + nacionalidade + '\'' +
-                ", Club='" + nomeClube + '\'' +
+                ", Age=" + age +
+                ", Name='" + name + '\'' +
+                ", Nationality='" + country + '\'' +
+                ", Club='" + club + '\'' +
                 '}';
     }
 }

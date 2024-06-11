@@ -7,9 +7,11 @@ import java.util.List;
 public interface PlayerDataService {
     List<Player> getPlayers();
 
+    List<Player> getPlayers(String name, int age, String club, String nationality);
+
     void setPlayers(List<Player> players);
 
     Player getPlayerById(int id);
 
-    void updatePlayer(int id, Player player);
+    void updatePlayer(Player player);
 }
