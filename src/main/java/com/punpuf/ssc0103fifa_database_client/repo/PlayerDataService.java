@@ -14,4 +14,6 @@ public interface PlayerDataService {
     Player getPlayerById(int id);
 
     void updatePlayer(Player player);
+
+    void removePlayer(int id);
 }

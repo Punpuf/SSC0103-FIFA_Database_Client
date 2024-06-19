@@ -1,4 +1,4 @@
-package com.punpuf.ssc0103fifa_database_client;
+package com.punpuf.ssc0103fifa_database_client.utils;
 
 import javafx.scene.image.Image;
 

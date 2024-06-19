@@ -46,4 +46,14 @@ public class PlayerDataServiceImpl implements PlayerDataService {
             }
         }
     }
+
+    @Override
+    public void removePlayer(int id) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId() == id) {
+                players.remove(i);
+                break;
+            }
+        }
+    }
 }

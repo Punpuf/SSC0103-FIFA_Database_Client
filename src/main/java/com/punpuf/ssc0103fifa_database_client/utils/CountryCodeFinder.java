@@ -14,7 +14,6 @@ import java.util.Map;
  * this processed was automated using a LLM. Then edited to fix issues.
  * </p>
  *
- * @author ChatGPT 4o
  */
 public class CountryCodeFinder {
     private static final Map<String, String> countryCodeMap = new HashMap<>();
@@ -121,9 +120,4 @@ public class CountryCodeFinder {
         return countryCodeMap.get(country.toUpperCase());
     }
 
-    public static String getCountryPath(String country) {
-        String projectRoot = System.getProperty("user.dir");
-        String countryCode = countryCodeMap.get(country.toUpperCase()).toLowerCase();
-        return projectRoot + "\\flags\\" + countryCode + ".svg";
-    }
 }

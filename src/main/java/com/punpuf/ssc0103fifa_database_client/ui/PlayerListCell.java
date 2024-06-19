@@ -1,6 +1,7 @@
-package com.punpuf.ssc0103fifa_database_client;
+package com.punpuf.ssc0103fifa_database_client.ui;
 
 import com.punpuf.ssc0103fifa_database_client.utils.CountryCodeFinder;
+import com.punpuf.ssc0103fifa_database_client.utils.Paths;
 import com.punpuf.ssc0103fifa_database_client.vo.Player;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
