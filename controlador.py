@@ -1,14 +1,16 @@
 import socketserver
 import json
 import subprocess
+import os
 from typing import List
 
 HOST = "127.0.0.1"
 PORT = 5000
 
-
-nome_arquivo_indice = "indice.bin"
-nome_arquivo_dados = "dados.bin"
+FILES_DIR = "db_out"
+nome_arquivo_indice = f"{FILES_DIR}/indice.bin"
+nome_arquivo_dados = f"{FILES_DIR}/dados.bin"
+nome_temp_csv = f"{FILES_DIR}/temp.csv"
 
 
 class Registro:
@@ -300,10 +302,9 @@ class RequestHandler(socketserver.StreamRequestHandler):
         executar_programa(entrada)
 
     def carregar_csv(self, conteudo_csv: str):
-        nome_csv = "dados_temp.csv"
-        with open(nome_csv, "w") as f:
+        with open(nome_temp_csv, "w") as f:
             f.write(conteudo_csv)
-        entrada = Entradas.criar_arquivo_dados(nome_csv)
+        entrada = Entradas.criar_arquivo_dados(nome_temp_csv)
         executar_programa(entrada)
 
     def buscar_registros(self, seletor: Seletor):
@@ -320,6 +321,9 @@ class RequestHandler(socketserver.StreamRequestHandler):
         self.wfile.write(json.dumps(dados).encode())
         self.wfile.write(b"\n")
 
+
+if not os.path.exists(FILES_DIR):
+    os.makedirs(FILES_DIR)
 
 server = socketserver.TCPServer((HOST, PORT), RequestHandler)
 
