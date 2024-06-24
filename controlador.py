@@ -292,6 +292,11 @@ class RequestHandler(socketserver.StreamRequestHandler):
                     "registros": [r.to_dict() for r in registros],
                 }
             )
+        elif tipo == "exportar_csv":
+            csv_str = self.exportar_csv()
+            self.enviar_resposta(
+                {"tipo": "resultado", "operacao": tipo, "status": "ok", "csv": csv_str}
+            )
 
     def inserir_registro(self, registro: Registro):
         entrada = Entradas.inserir_registros([registro])
@@ -316,6 +321,26 @@ class RequestHandler(socketserver.StreamRequestHandler):
     def atualizar_registro(self, registro: Registro):
         self.remover_registros(Seletor(id=registro.id))
         self.inserir_registro(registro)
+
+    def exportar_csv(self):
+        registros = self.buscar_registros(Seletor())
+
+        csv_str = "id,idade,nomeJogador,nacionalidade,nomeClube\n"
+
+        def campo(valor: str | int | None):
+            if valor is None:
+                return ""
+            return valor
+
+        for registro in registros:
+            id = registro.id
+            idade = campo(registro.idade)
+            nome_jogador = campo(registro.nome_jogador)
+            nacionalidade = campo(registro.nacionalidade)
+            nome_clube = campo(registro.nome_clube)
+            csv_str += f"{id},{idade},{nome_jogador},{nacionalidade},{nome_clube}\n"
+
+        return csv_str
 
     def enviar_resposta(self, dados: dict):
         self.wfile.write(json.dumps(dados).encode())
