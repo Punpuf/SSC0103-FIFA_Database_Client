@@ -287,7 +287,7 @@ class RequestHandler(socketserver.StreamRequestHandler):
             self.enviar_resposta(
                 {
                     "tipo": "resultado",
-                    "operacao": "buscar",
+                    "operacao": tipo,
                     "status": "ok",
                     "registros": [r.to_dict() for r in registros],
                 }
