@@ -179,6 +179,20 @@ void select_where(tabela_t *tabela, filtro_t *filtro)
         {
             encontrado = true;
 
+            // essas duas linhas não fazem parte da especificação
+            // do trabalho de organização de arquivos
+            // mas elas são necessárias para que o servidor e o 
+            // cliente possam saber a idade e id de cada jogador
+            printf("ID: %ld\n", registro_get_id(registro));
+
+            int idade = registro_get_idade(registro);
+            printf("Idade: ");
+            if(idade == -1) {
+                printf("SEM DADO\n");
+            } else {
+                printf("%d\n", idade);
+            }
+
             int tam_nome;
             char *nome = registro_get_nome_jogador(registro, &tam_nome);
             printf("Nome do Jogador: ");
