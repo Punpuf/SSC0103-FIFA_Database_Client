@@ -1,5 +1,7 @@
 package com.punpuf.ssc0103fifa_database_client.vo;
 
+import org.json.JSONObject;
+
 /**
  * Class that represents the characteristics of a FIFA player
  * @author Jean Patrick Ngandu Mamani
@@ -19,6 +21,15 @@ public class Player {
         this.name = name;
         this.country = country;
         this.club = club;
+    }
+
+    public static Player fromJSON(JSONObject object) {
+        int id = object.getInt("id");
+        int age = object.optInt("idade", -1);
+        String name = object.optString("nomeJogador");
+        String country = object.optString("nacionalidade");
+        String club = object.optString("nomeClube");
+        return new Player(id, age, name, country, club);
     }
 
     public int getId() {
@@ -59,6 +70,21 @@ public class Player {
 
     public void setClub(String club) {
         this.club = club;
+    }
+
+
+    public JSONObject toJSON() {
+        JSONObject object = new JSONObject()
+                .put("id", id)
+                .putOpt("nomeJogador", name)
+                .putOpt("nacionalidade", country)
+                .putOpt("nomeClube", club);
+
+        if(age != -1) {
+            object.put("age", age);
+        }
+
+        return object;
     }
 
     @Override

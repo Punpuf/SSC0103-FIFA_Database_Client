@@ -8,6 +8,8 @@ module com.punpuf.ssc0103fifa_database_client {
     requires org.kordamp.bootstrapfx.core;
     requires com.jfoenix;
     requires java.desktop;
+    requires jdk.jsobject;
+    requires org.json;
 
     opens com.punpuf.ssc0103fifa_database_client to javafx.fxml;
     exports com.punpuf.ssc0103fifa_database_client;

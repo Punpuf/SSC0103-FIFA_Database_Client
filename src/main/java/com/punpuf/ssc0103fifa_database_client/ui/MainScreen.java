@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbarLayout;
 import com.punpuf.ssc0103fifa_database_client.repo.PlayerDataService;
 import com.punpuf.ssc0103fifa_database_client.repo.PlayerDataServiceImpl;
+import com.punpuf.ssc0103fifa_database_client.repo.RemotePlayerService;
 import com.punpuf.ssc0103fifa_database_client.utils.Paths;
 import com.punpuf.ssc0103fifa_database_client.vo.Player;
 import javafx.application.Application;
@@ -28,6 +29,7 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,9 +37,17 @@ import java.util.Objects;
 public class MainScreen extends Application {
 
     private final static int ICON_WIDTH_PX = 16;
-    private final PlayerDataService playerDataService = new PlayerDataServiceImpl();
+    private PlayerDataService playerDataService = new PlayerDataServiceImpl();
     private Stage primaryStage;
     private ListView<Player> playerListView;
+
+    public MainScreen() {
+        try {
+            playerDataService = new RemotePlayerService();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Configures the file chooser for selecting a CSV file.
