@@ -8,9 +8,9 @@ HOST = "127.0.0.1"
 PORT = 5000
 
 FILES_DIR = "db_out"
-nome_arquivo_indice = f"{FILES_DIR}/indice.bin"
-nome_arquivo_dados = f"{FILES_DIR}/dados.bin"
-nome_temp_csv = f"{FILES_DIR}/temp.csv"
+NOME_ARQUIVO_INDICE = f"{FILES_DIR}/indice.bin"
+NOME_ARQUIVO_DADOS = f"{FILES_DIR}/dados.bin"
+NOME_TEMP_CSV = f"{FILES_DIR}/temp.csv"
 
 
 class Registro:
@@ -121,12 +121,12 @@ def executar_programa(entrada: str):
 class Entradas:
     @staticmethod
     def criar_arquivo_dados(nome_csv: str):
-        entrada = f"1 {nome_csv} {nome_arquivo_dados}\n"
+        entrada = f"1 {nome_csv} {NOME_ARQUIVO_DADOS}\n"
         return entrada
 
     @staticmethod
     def buscar_registros(seletor: Seletor):
-        entrada = f"3 {nome_arquivo_dados} {1}\n"
+        entrada = f"3 {NOME_ARQUIVO_DADOS} {1}\n"
 
         d = seletor.to_dict()
         campos = list((k, v) for k, v in d.items() if v is not None)
@@ -146,7 +146,7 @@ class Entradas:
 
     @staticmethod
     def inserir_registros(registros: List[Registro]):
-        entrada = f"6 {nome_arquivo_dados} {nome_arquivo_indice} {len(registros)}\n"
+        entrada = f"6 {NOME_ARQUIVO_DADOS} {NOME_ARQUIVO_INDICE} {len(registros)}\n"
 
         def campo(valor: str | int | None):
             if valor is None:
@@ -166,7 +166,7 @@ class Entradas:
 
     @staticmethod
     def remover_registros(seletores: List[Seletor]):
-        entrada = f"5 {nome_arquivo_dados} {nome_arquivo_indice} {len(seletores)}\n"
+        entrada = f"5 {NOME_ARQUIVO_DADOS} {NOME_ARQUIVO_INDICE} {len(seletores)}\n"
 
         for seletor in seletores:
             linha = ""
@@ -302,9 +302,9 @@ class RequestHandler(socketserver.StreamRequestHandler):
         executar_programa(entrada)
 
     def carregar_csv(self, conteudo_csv: str):
-        with open(nome_temp_csv, "w") as f:
+        with open(NOME_TEMP_CSV, "w") as f:
             f.write(conteudo_csv)
-        entrada = Entradas.criar_arquivo_dados(nome_temp_csv)
+        entrada = Entradas.criar_arquivo_dados(NOME_TEMP_CSV)
         executar_programa(entrada)
 
     def buscar_registros(self, seletor: Seletor):
