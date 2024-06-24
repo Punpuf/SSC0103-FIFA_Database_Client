@@ -39,10 +39,10 @@ class Registro:
     def from_dict(cls, d: dict):
         return cls(
             id=d["id"],
-            idade=d["idade"],
-            nome_jogador=d["nomeJogador"],
-            nacionalidade=d["nacionalidade"],
-            nome_clube=d["nomeClube"],
+            idade=d.get("idade", None),
+            nome_jogador=d.get("nomeJogador", None),
+            nacionalidade=d.get("nacionalidade", None),
+            nome_clube=d.get("nomeClube", None),
         )
 
     def to_dict(self):
@@ -92,11 +92,11 @@ class Seletor:
     @classmethod
     def from_dict(cls, d: dict):
         return cls(
-            id=d["id"],
-            idade=d["idade"],
-            nome_jogador=d["nomeJogador"],
-            nacionalidade=d["nacionalidade"],
-            nome_clube=d["nomeClube"],
+            id=d.get("id", None),
+            idade=d.get("idade", None),
+            nome_jogador=d.get("nomeJogador", None),
+            nacionalidade=d.get("nacionalidade", None),
+            nome_clube=d.get("nomeClube", None),
         )
 
     def to_dict(self):
@@ -252,6 +252,10 @@ class Saidas:
         return registros
 
 
+def arquivo_dados_existe():
+    return os.path.isfile(NOME_ARQUIVO_DADOS)
+
+
 # FIXME: se o cliente mandar duas mensagems
 # em um curto intervalo de tempo, o parser de json
 # vai acabar lendo as duas de uma vez, ao invés de
@@ -259,9 +263,20 @@ class Saidas:
 # falhem
 class RequestHandler(socketserver.StreamRequestHandler):
     def handle(self):
-        print(self.request)
         data = json.loads(self.rfile.readline())
         tipo = str(data["tipo"])
+
+        if tipo != "carregar" and not arquivo_dados_existe():
+            self.enviar_resposta(
+                {
+                    "tipo": "resultado",
+                    "operacao": tipo,
+                    "status": "erro",
+                    "mensagem": "Arquivo de dados não existe",
+                }
+            )
+            return
+
         if tipo == "carregar":
             self.carregar_csv(data["stringCsv"])
             self.enviar_resposta(
