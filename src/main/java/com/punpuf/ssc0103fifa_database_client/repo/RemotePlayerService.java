@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,28 +40,23 @@ public class RemotePlayerService implements PlayerDataService{
 
 
     private List<Player> getPlayers(Selector selector) {
-        JSONObject object = new JSONObject()
+        JSONObject message = new JSONObject()
                 .put("tipo", "buscar")
                 .put("seletor", selector.toJSON());
 
-        printStream.println(object);
 
-        while(!scanner.hasNextLine());
+        JSONObject response = sendMessage(message);
+        System.out.println(response);
 
-        String linha = scanner.nextLine();
-        JSONObject resposta = new JSONObject(linha);
-
-        System.out.println(resposta);
-
-        if(!resposta.get("status").equals("ok")) {
+        if(!response.get("status").equals("ok")) {
             return List.of();
         }
 
-        JSONArray dadosRegistros = resposta.getJSONArray("registros");
+        JSONArray playerData = response.getJSONArray("registros");
         ArrayList<Player> players = new ArrayList<>();
 
-        for(int i = 0; i < dadosRegistros.length(); i++) {
-            players.add(Player.fromJSON(dadosRegistros.getJSONObject(i)));
+        for(int i = 0; i < playerData.length(); i++) {
+            players.add(Player.fromJSON(playerData.getJSONObject(i)));
         }
 
         return players;
@@ -70,7 +64,15 @@ public class RemotePlayerService implements PlayerDataService{
 
     @Override
     public void setPlayers(List<Player> players) {
+        
+    }
 
+    public void loadPlayers(String csvData) {
+        JSONObject message = new JSONObject()
+                .put("tipo", "carregar")
+                .put("stringCsv", csvData);
+
+        sendMessage(message);
     }
 
     @Override
@@ -85,14 +87,34 @@ public class RemotePlayerService implements PlayerDataService{
 
     @Override
     public void updatePlayer(Player player) {
-        JSONObject object = new JSONObject()
+        JSONObject message = new JSONObject()
                 .put("tipo", "atualizar")
                 .put("registro", player.toJSON());
+
+        JSONObject response = sendMessage(message);
+
+        // TODO: handle not ok response
     }
 
     @Override
     public void removePlayer(int id) {
+        Selector selector = new Selector();
+        selector.setId(id);
+        JSONObject request = new JSONObject()
+                .put("tipo", "remover")
+                .put("seletor", selector);
 
+        JSONObject response = sendMessage(request);
+        // TODO: handle not ok response
+    }
+
+
+    private JSONObject sendMessage(JSONObject object) {
+        printStream.println(object);
+
+        while(!scanner.hasNextLine());
+
+        return new JSONObject(scanner.nextLine());
     }
 
 

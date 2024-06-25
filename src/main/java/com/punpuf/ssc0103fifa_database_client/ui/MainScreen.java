@@ -30,6 +30,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +39,7 @@ import java.util.Objects;
 public class MainScreen extends Application {
 
     private final static int ICON_WIDTH_PX = 16;
-    private PlayerDataService playerDataService = new PlayerDataServiceImpl();
+    private final RemotePlayerService playerDataService;
     private Stage primaryStage;
     private ListView<Player> playerListView;
 
@@ -174,31 +176,12 @@ public class MainScreen extends Application {
     private void openFile(File file) {
         try {
             String filePath = file.getAbsolutePath();
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            reader.readLine(); // Read header line and discard it
+            String fileContents = Files.readString(Path.of(filePath));
 
-            String currentLine;
-            ArrayList<Player> players = new ArrayList<>();
-            while ((currentLine = reader.readLine()) != null) {
-                String[] lineProcessedContents = new String[5];
-                for (int i = 0; i < 5; i++) {
-                    lineProcessedContents[i] = "";
-                }
-                String[] dividedLine = currentLine.split(",");
-                System.arraycopy(dividedLine, 0, lineProcessedContents, 0, dividedLine.length);
+            playerDataService.loadPlayers(fileContents);
+            List<Player> players = playerDataService.getPlayers();
 
-                int id = Integer.parseInt(lineProcessedContents[0]);
-                int age = lineProcessedContents[1].isEmpty() ? -1 : Integer.parseInt(lineProcessedContents[1]);
-                String nomeJogador = lineProcessedContents[2].isEmpty() ? "" : lineProcessedContents[2];
-                String nacionalidade = lineProcessedContents[3].isEmpty() ? "" : lineProcessedContents[3];
-                String nomeClube = lineProcessedContents[4].isEmpty() ? "" : lineProcessedContents[4];
-
-                players.add(new Player(id, age, nomeJogador, nacionalidade, nomeClube));
-            }
-
-            System.out.println(players.size() + " players added.");
             if (!players.isEmpty()) {
-                playerDataService.setPlayers(players);
                 playerListView.setItems(FXCollections.observableArrayList(playerDataService.getPlayers()));
             } else {
                 showSnackbar("Um arquivo não suportado foi aberto. Tente novamente.");
