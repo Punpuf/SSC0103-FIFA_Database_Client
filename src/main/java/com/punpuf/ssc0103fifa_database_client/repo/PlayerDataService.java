@@ -9,7 +9,7 @@ public interface PlayerDataService {
 
     List<Player> getPlayers(String name, int age, String club, String nationality);
 
-    void setPlayers(List<Player> players);
+    void setPlayers(String csvData);
 
     Player getPlayerById(int id);
 

@@ -263,7 +263,9 @@ def arquivo_dados_existe():
 # falhem
 class RequestHandler(socketserver.StreamRequestHandler):
     def handle(self):
+        print("\nReceived request!")
         data = json.loads(self.rfile.readline())
+        print(f"Request data: {data}")
         tipo = str(data["tipo"])
 
         if tipo != "carregar" and not arquivo_dados_existe():
@@ -360,12 +362,14 @@ class RequestHandler(socketserver.StreamRequestHandler):
     def enviar_resposta(self, dados: dict):
         self.wfile.write(json.dumps(dados).encode())
         self.wfile.write(b"\n")
+        print(f"Response sent: {dados}")
 
 
 if not os.path.exists(FILES_DIR):
     os.makedirs(FILES_DIR)
 
 server = socketserver.TCPServer((HOST, PORT), RequestHandler)
+print(f"Server running on {HOST}:{PORT}")
 
 try:
     server.serve_forever()

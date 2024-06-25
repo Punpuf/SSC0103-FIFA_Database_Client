@@ -3,9 +3,8 @@ package com.punpuf.ssc0103fifa_database_client.ui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbarLayout;
+import com.punpuf.ssc0103fifa_database_client.repo.LocalDataServiceImpl;
 import com.punpuf.ssc0103fifa_database_client.repo.PlayerDataService;
-import com.punpuf.ssc0103fifa_database_client.repo.PlayerDataServiceImpl;
-import com.punpuf.ssc0103fifa_database_client.repo.RemotePlayerService;
 import com.punpuf.ssc0103fifa_database_client.utils.Paths;
 import com.punpuf.ssc0103fifa_database_client.vo.Player;
 import javafx.application.Application;
@@ -26,27 +25,23 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MainScreen extends Application {
 
     private final static int ICON_WIDTH_PX = 16;
-    private final RemotePlayerService playerDataService;
+    private final PlayerDataService playerDataService;
     private Stage primaryStage;
     private ListView<Player> playerListView;
 
     public MainScreen() {
         try {
-            playerDataService = new RemotePlayerService();
-        } catch (IOException e) {
+            playerDataService = new LocalDataServiceImpl();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -178,7 +173,7 @@ public class MainScreen extends Application {
             String filePath = file.getAbsolutePath();
             String fileContents = Files.readString(Path.of(filePath));
 
-            playerDataService.loadPlayers(fileContents);
+            playerDataService.setPlayers(fileContents);
             List<Player> players = playerDataService.getPlayers();
 
             if (!players.isEmpty()) {

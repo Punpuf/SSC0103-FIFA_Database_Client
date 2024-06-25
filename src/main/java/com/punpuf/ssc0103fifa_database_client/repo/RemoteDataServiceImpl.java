@@ -12,12 +12,12 @@ import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class RemotePlayerService implements PlayerDataService{
+public class RemoteDataServiceImpl implements PlayerDataService{
     Socket client;
     Scanner scanner;
     PrintStream printStream;
 
-    public RemotePlayerService() throws IOException {
+    public RemoteDataServiceImpl() throws IOException {
         client = new Socket("127.0.0.1", 5000);
         scanner = new Scanner(client.getInputStream());
         printStream = new PrintStream(client.getOutputStream());
@@ -63,11 +63,7 @@ public class RemotePlayerService implements PlayerDataService{
     }
 
     @Override
-    public void setPlayers(List<Player> players) {
-        
-    }
-
-    public void loadPlayers(String csvData) {
+    public void setPlayers(String csvData) {
         JSONObject message = new JSONObject()
                 .put("tipo", "carregar")
                 .put("stringCsv", csvData);
@@ -111,10 +107,14 @@ public class RemotePlayerService implements PlayerDataService{
 
     private JSONObject sendMessage(JSONObject object) {
         printStream.println(object);
+        System.out.println("\n\nSent message: " + object.toString());
 
         while(!scanner.hasNextLine());
+        System.out.println("No more lines left");
 
-        return new JSONObject(scanner.nextLine());
+        String responseLine = scanner.nextLine();
+        System.out.println("Received: " + responseLine);
+        return new JSONObject(responseLine);
     }
 
 
