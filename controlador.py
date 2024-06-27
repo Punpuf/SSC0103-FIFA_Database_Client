@@ -1,4 +1,5 @@
-import socketserver
+import pathlib
+import socket
 import json
 import subprocess
 import os
@@ -151,7 +152,9 @@ class Entradas:
         def campo(valor: str | int | None):
             if valor is None:
                 return "NULO"
-            return valor
+            if isinstance(valor, int):
+                return valor
+            return f'"{valor}"'
 
         for registro in registros:
             id = registro.id
@@ -169,18 +172,24 @@ class Entradas:
         entrada = f"5 {NOME_ARQUIVO_DADOS} {NOME_ARQUIVO_INDICE} {len(seletores)}\n"
 
         for seletor in seletores:
-            linha = ""
+            quantidade = 0
+            filtro = ""
             if seletor.id is not None:
-                linha += f"id {seletor.id} "
+                filtro += f"id {seletor.id} "
+                quantidade += 1
             if seletor.idade is not None:
-                linha += f"idade {seletor.idade} "
+                filtro += f"idade {seletor.idade} "
+                quantidade += 1
             if seletor.nome_jogador is not None:
-                linha += f"nomeJogador {seletor.nome_jogador} "
+                filtro += f"nomeJogador {seletor.nome_jogador} "
+                quantidade += 1
             if seletor.nacionalidade is not None:
-                linha += f"nacionalidade {seletor.nacionalidade} "
+                filtro += f"nacionalidade {seletor.nacionalidade} "
+                quantidade += 1
             if seletor.nome_clube is not None:
-                linha += f"nomeClube {seletor.nome_clube} "
-            linha += "\n"
+                filtro += f"nomeClube {seletor.nome_clube} "
+                quantidade += 1
+            entrada += f"{quantidade} {filtro}\n"
 
         return entrada
 
@@ -261,10 +270,15 @@ def arquivo_dados_existe():
 # vai acabar lendo as duas de uma vez, ao invés de
 # ler cada uma separadamente, fazendo com que ambas as requisições
 # falhem
-class RequestHandler(socketserver.StreamRequestHandler):
-    def handle(self):
+class RequestHandler:
+    s: socket.socket
+
+    def __init__(self, socket: socket.socket):
+        self.s = socket
+
+    def handle(self, message: str):
         print("\nReceived request!")
-        data = json.loads(self.rfile.readline())
+        data = json.loads(message)
         print(f"Request data: {data}")
         tipo = str(data["tipo"])
 
@@ -280,7 +294,7 @@ class RequestHandler(socketserver.StreamRequestHandler):
             return
 
         if tipo == "carregar":
-            self.carregar_csv(data["stringCsv"])
+            self.carregar_csv(data["caminhoCsv"])
             self.enviar_resposta(
                 {"tipo": "resultado", "operacao": tipo, "status": "ok"}
             )
@@ -306,9 +320,12 @@ class RequestHandler(socketserver.StreamRequestHandler):
                     "tipo": "resultado",
                     "operacao": tipo,
                     "status": "ok",
-                    "registros": [r.to_dict() for r in registros],
+                    "nro_registros": len(registros),
                 }
             )
+
+            for registro in registros:
+                self.enviar_resposta(registro.to_dict())
         elif tipo == "exportar_csv":
             csv_str = self.exportar_csv()
             self.enviar_resposta(
@@ -323,10 +340,12 @@ class RequestHandler(socketserver.StreamRequestHandler):
         entrada = Entradas.remover_registros([seletor])
         executar_programa(entrada)
 
-    def carregar_csv(self, conteudo_csv: str):
-        with open(NOME_TEMP_CSV, "w") as f:
-            f.write(conteudo_csv)
-        entrada = Entradas.criar_arquivo_dados(NOME_TEMP_CSV)
+    def carregar_csv(self, caminho_csv: str):
+        # o arquivo de dados já vai ser sobrescrito pelo
+        # programa, então não precisamos nos preocupar em
+        # remover ele
+        pathlib.Path.unlink(NOME_ARQUIVO_INDICE, missing_ok=True)
+        entrada = Entradas.criar_arquivo_dados(caminho_csv)
         executar_programa(entrada)
 
     def buscar_registros(self, seletor: Seletor):
@@ -360,18 +379,42 @@ class RequestHandler(socketserver.StreamRequestHandler):
         return csv_str
 
     def enviar_resposta(self, dados: dict):
-        self.wfile.write(json.dumps(dados).encode())
-        self.wfile.write(b"\n")
+        self.s.sendall(json.dumps(dados).encode())
+        self.s.sendall(b"\n")
         print(f"Response sent: {dados}")
 
 
 if not os.path.exists(FILES_DIR):
     os.makedirs(FILES_DIR)
 
-server = socketserver.TCPServer((HOST, PORT), RequestHandler)
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((HOST, PORT))
+server.listen()
+
 print(f"Server running on {HOST}:{PORT}")
 
-try:
-    server.serve_forever()
-except KeyboardInterrupt:
-    print("Servidor fechado")
+conn, addr = server.accept()
+handler = RequestHandler(conn)
+
+
+current_message = bytearray()
+received_messages: List[str] = []
+
+while True:
+    try:
+        data = conn.recv(1024)
+
+        for byte in data:
+            if byte == b"\n"[0] and current_message != b"\n":
+                received_messages.append(current_message.decode())
+                current_message.clear()
+            else:
+                current_message.append(byte)
+
+        for message in received_messages:
+            handler.handle(message)
+
+        received_messages = []
+    except KeyboardInterrupt:
+        print("Servidor fechado")
+        exit()
