@@ -97,5 +97,29 @@ public class Player {
                 ", Club='" + club + '\'' +
                 '}';
     }
+
+
+    public String toCSVString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(id);
+        sb.append(',');
+        if(age != -1) {
+            sb.append(age);
+        }
+        sb.append(',');
+        if(name != null) {
+            sb.append(name);
+        }
+        sb.append(',');
+        if(country != null) {
+            sb.append(country);
+        }
+        sb.append(',');
+        if(club != null) {
+            sb.append(club);
+        }
+        return sb.toString();
+    }
+
 }
 

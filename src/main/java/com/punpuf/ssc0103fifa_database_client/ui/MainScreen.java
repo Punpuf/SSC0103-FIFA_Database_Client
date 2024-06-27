@@ -223,8 +223,10 @@ public class MainScreen extends Application {
 
             // Convert player list to string
             StringBuilder playerListStr = new StringBuilder();
+
+            playerListStr.append("id,idade,nomeJogador,nacionalidade,nomeClube\n");
             for (Player player : playerList) {
-                playerListStr.append(player.toString()).append("\n");
+                playerListStr.append(player.toCSVString()).append("\n");
             }
 
             Platform.runLater(() -> {
