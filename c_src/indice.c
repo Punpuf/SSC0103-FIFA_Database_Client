@@ -50,7 +50,7 @@ void indice_liberar(indice_t **indice)
     *indice = NULL;
 }
 
-indice_t *indice_ler(FILE *arquivo)
+indice_t *indice_ler(FILE *arquivo, int nro_registros)
 {
     if (ftell(arquivo) != 0)
     {
@@ -71,9 +71,6 @@ indice_t *indice_ler(FILE *arquivo)
     fseek(arquivo, 0, SEEK_END);
     long fim = ftell(arquivo);
 
-    // calcula a quantidade de registros no índice
-    // e aloca memória para armazená-los
-    int nro_registros = (fim - inicio) / (TAMANHO_REGISTRO_INDICE);
     int capacidade = nro_registros;
     registro_indice_t **registros = malloc(capacidade * sizeof(registro_indice_t *));
 
@@ -97,6 +94,7 @@ void indice_escrever(indice_t *indice, FILE *arquivo)
     cabecalho_indice_t *cabecalho = indice->cabecalho;
     // indica que o arquivo está sob modificação
     cabecalho_indice_set_status(cabecalho, CABECALHO_INDICE_STATUS_INCONSISTENTE);
+    fseek(arquivo, 0, SEEK_SET);
     cabecalho_indice_escrever(arquivo, cabecalho);
 
     // escreve todos os registros de índice
@@ -106,6 +104,7 @@ void indice_escrever(indice_t *indice, FILE *arquivo)
         registro_indice_escrever(arquivo, registro);
     }
 
+    long tamanho = ftell(arquivo);
     // o arquivo está pronto
     cabecalho_indice_set_status(cabecalho, CABECALHO_INDICE_STATUS_BOM);
     fseek(arquivo, 0, SEEK_SET);
@@ -151,6 +150,7 @@ void indice_remover_registro(indice_t *indice, int id)
 {
     registro_indice_t *registro = registro_indice_instanciar(id, 0);
     int posicao = _buscar_registro(indice, registro);
+
     registro_indice_liberar(&registro);
 
     if (posicao == -1)

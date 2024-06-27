@@ -184,7 +184,8 @@ int main()
             return 0;
         }
 
-        indice_t *indice = indice_ler(arquivo_indice);
+        cabecalho_t *cabecalho = tabela_get_cabecalho(tabela);
+        indice_t *indice = indice_ler(arquivo_indice, cabecalho_get_nro_reg_arq(cabecalho));
         if (indice == NULL)
         {
             indice = tabela_gerar_indice(tabela);
@@ -248,7 +249,8 @@ int main()
             return 0;
         }
 
-        indice_t *indice = indice_ler(arquivo_indice);
+        cabecalho_t *cabecalho = tabela_get_cabecalho(tabela);
+        indice_t *indice = indice_ler(arquivo_indice, cabecalho_get_nro_reg_arq(cabecalho));
         if (indice == NULL)
         {
             indice = tabela_gerar_indice(tabela);

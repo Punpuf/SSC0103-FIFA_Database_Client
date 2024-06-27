@@ -19,7 +19,7 @@ void indice_liberar(indice_t **indice);
 
 // tenta carragar os dados do arquivo de registro
 // retorna NULL se o índice estiver inconsistente
-indice_t *indice_ler(FILE *arquivo);
+indice_t *indice_ler(FILE *arquivo, int nro_registros);
 
 // salva o registro no arquivo
 void indice_escrever(indice_t *indice, FILE *arquivo);
