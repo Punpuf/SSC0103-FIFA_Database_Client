@@ -5,9 +5,11 @@ import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbarLayout;
 import com.punpuf.ssc0103fifa_database_client.repo.LocalDataServiceImpl;
 import com.punpuf.ssc0103fifa_database_client.repo.PlayerDataService;
+import com.punpuf.ssc0103fifa_database_client.repo.RemoteDataServiceImpl;
 import com.punpuf.ssc0103fifa_database_client.utils.Paths;
 import com.punpuf.ssc0103fifa_database_client.vo.Player;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -28,8 +30,11 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.rmi.Remote;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainScreen extends Application {
 
@@ -37,10 +42,15 @@ public class MainScreen extends Application {
     private final PlayerDataService playerDataService;
     private Stage primaryStage;
     private ListView<Player> playerListView;
+    // executor de single thread para garantir que
+    // o servidor só
+    // processa uma requisição por vez
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private boolean carregando = false;
 
     public MainScreen() {
         try {
-            playerDataService = new LocalDataServiceImpl();
+            playerDataService = new RemoteDataServiceImpl();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -156,6 +166,7 @@ public class MainScreen extends Application {
      * @param fileChooser  The file chooser for selecting the CSV file.
      */
     private void handleFileUpload(Stage primaryStage, FileChooser fileChooser) {
+        if(carregando) return;
         configureFileChooser(fileChooser);
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file != null) {
@@ -169,48 +180,65 @@ public class MainScreen extends Application {
      * @param file The selected file.
      */
     private void openFile(File file) {
-        try {
-            String filePath = file.getAbsolutePath();
-            String fileContents = Files.readString(Path.of(filePath));
+        String filePath = file.getAbsolutePath();
+        carregando = true;
+        executor.execute(() -> {
+            try {
+                playerDataService.setPlayers(filePath);
+                List<Player> players = playerDataService.getPlayers();
 
-            playerDataService.setPlayers(fileContents);
-            List<Player> players = playerDataService.getPlayers();
+                Platform.runLater(() -> {
+                    if (!players.isEmpty()) {
+                        playerListView.setItems(FXCollections.observableArrayList(playerDataService.getPlayers()));
+                    } else {
+                        showSnackbar("Um arquivo não suportado foi aberto. Tente novamente.");
+                    }
+                });
 
-            if (!players.isEmpty()) {
-                playerListView.setItems(FXCollections.observableArrayList(playerDataService.getPlayers()));
-            } else {
-                showSnackbar("Um arquivo não suportado foi aberto. Tente novamente.");
+            } catch (Exception ex) {
+                System.out.println("Exception occurred while opening file: " + ex);
+                Platform.runLater(() -> {
+                    showSnackbar("Um arquivo não suportado foi aberto. Tente novamente.");
+                });
+            } finally {
+                 carregando = false;
             }
-
-        } catch (Exception ex) {
-            System.out.println("Exception occurred while opening file: " + ex);
-            showSnackbar("Um arquivo não suportado foi aberto. Tente novamente.");
-        }
+        });
     }
 
     /**
      * Handles the action of copying the player list to the clipboard.
      */
     private void handleCopyToClipboard() {
-        List<Player> playerList = playerListView.getItems();
-        if (playerList == null || playerList.isEmpty()) {
-            showSnackbar("Lista de jogadores está vazia. Tente novamente.");
-            return;
-        }
+        carregando = true;
+        executor.execute(() -> {
+            List<Player> playerList = playerListView.getItems();
+            if (playerList == null || playerList.isEmpty()) {
+                Platform.runLater(() -> {
+                    carregando = false;
+                    showSnackbar("Lista de jogadores está vazia. Tente novamente.");
+                });
+                return;
+            }
 
-        // Convert player list to string
-        StringBuilder playerListStr = new StringBuilder();
-        for (Player player : playerList) {
-            playerListStr.append(player.toString()).append("\n");
-        }
+            // Convert player list to string
+            StringBuilder playerListStr = new StringBuilder();
+            for (Player player : playerList) {
+                playerListStr.append(player.toString()).append("\n");
+            }
 
-        // Copy to clipboard
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-        ClipboardContent content = new ClipboardContent();
-        content.putString(playerListStr.toString());
-        clipboard.setContent(content);
+            Platform.runLater(() -> {
+                carregando = false;
 
-        showSnackbar("Lista de jogadores copiada para o clipboard.");
+                // Copy to clipboard
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent content = new ClipboardContent();
+                content.putString(playerListStr.toString());
+                clipboard.setContent(content);
+
+                showSnackbar("Lista de jogadores copiada para o clipboard.");
+            });
+        });
     }
 
     /**

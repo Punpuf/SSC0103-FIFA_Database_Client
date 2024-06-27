@@ -10,6 +10,7 @@ module com.punpuf.ssc0103fifa_database_client {
     requires java.desktop;
     requires jdk.jsobject;
     requires org.json;
+    requires java.rmi;
 
     opens com.punpuf.ssc0103fifa_database_client to javafx.fxml;
     exports com.punpuf.ssc0103fifa_database_client;

@@ -8,14 +8,17 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class RemoteDataServiceImpl implements PlayerDataService{
     Socket client;
     Scanner scanner;
     PrintStream printStream;
+
+    List<Player> cachedPlayers;
 
     public RemoteDataServiceImpl() throws IOException {
         client = new Socket("127.0.0.1", 5000);
@@ -25,7 +28,10 @@ public class RemoteDataServiceImpl implements PlayerDataService{
 
     @Override
     public List<Player> getPlayers() {
-        return getPlayers(new Selector());
+        if(cachedPlayers != null) return cachedPlayers;
+
+        cachedPlayers = getPlayers(new Selector());
+        return cachedPlayers;
     }
 
     @Override
@@ -46,27 +52,27 @@ public class RemoteDataServiceImpl implements PlayerDataService{
 
 
         JSONObject response = sendMessage(message);
-        System.out.println(response);
 
         if(!response.get("status").equals("ok")) {
             return List.of();
         }
 
-        JSONArray playerData = response.getJSONArray("registros");
+        int playerCount = response.getInt("nro_registros");
         ArrayList<Player> players = new ArrayList<>();
 
-        for(int i = 0; i < playerData.length(); i++) {
-            players.add(Player.fromJSON(playerData.getJSONObject(i)));
+        for(int i = 0; i < playerCount; i++) {
+            players.add(Player.fromJSON(receiveMessage()));
         }
 
         return players;
     }
 
     @Override
-    public void setPlayers(String csvData) {
+    public void setPlayers(String csvPath) {
+        cachedPlayers = null;
         JSONObject message = new JSONObject()
                 .put("tipo", "carregar")
-                .put("stringCsv", csvData);
+                .put("caminhoCsv", csvPath);
 
         sendMessage(message);
     }
@@ -83,6 +89,7 @@ public class RemoteDataServiceImpl implements PlayerDataService{
 
     @Override
     public void updatePlayer(Player player) {
+        cachedPlayers = null;
         JSONObject message = new JSONObject()
                 .put("tipo", "atualizar")
                 .put("registro", player.toJSON());
@@ -94,11 +101,13 @@ public class RemoteDataServiceImpl implements PlayerDataService{
 
     @Override
     public void removePlayer(int id) {
+        cachedPlayers = null;
+
         Selector selector = new Selector();
         selector.setId(id);
         JSONObject request = new JSONObject()
                 .put("tipo", "remover")
-                .put("seletor", selector);
+                .put("seletor", selector.toJSON());
 
         JSONObject response = sendMessage(request);
         // TODO: handle not ok response
@@ -107,14 +116,17 @@ public class RemoteDataServiceImpl implements PlayerDataService{
 
     private JSONObject sendMessage(JSONObject object) {
         printStream.println(object);
-        System.out.println("\n\nSent message: " + object.toString());
+        System.out.println(object);
+        return receiveMessage();
+    }
 
+    private JSONObject receiveMessage() {
         while(!scanner.hasNextLine());
-        System.out.println("No more lines left");
 
-        String responseLine = scanner.nextLine();
-        System.out.println("Received: " + responseLine);
-        return new JSONObject(responseLine);
+        String line = scanner.nextLine();
+        JSONObject message = new JSONObject(line);
+        System.out.println(message);
+        return message;
     }
 
 

@@ -81,7 +81,7 @@ public class Player {
                 .putOpt("nomeClube", club);
 
         if(age != -1) {
-            object.put("age", age);
+            object.put("idade", age);
         }
 
         return object;
